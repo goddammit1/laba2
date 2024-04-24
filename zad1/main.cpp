@@ -42,13 +42,40 @@ public:
         delete[] _digits;
     }
 
-    void print() {
-        if (_digits != nullptr) {
-            for (size_t i = 0; i < _size; i++) {
-                std::cout << _digits[i] << ' ';
-            }
+
+    unsigned int *splitDigits(size_t &newSize) const {
+        newSize = _size * 2;
+        unsigned int *result = new unsigned int[newSize];
+        size_t j = 0;
+
+        for (size_t i = 0; i < _size; i++) {
+            result[j++] = _digits[i] & 0xFFFF; // младшая половинка
+            result[j++] = (_digits[i] >> 16) & 0xFFFF; // старшая половинка
         }
-        std::cout << _sign << std::endl;
+
+        return result;
+    }
+
+    void print() {
+        if (_digits == nullptr) {
+            std::cout << "0" << std::endl;
+            return;
+        }
+
+        if (isNegative()) {
+            changeSign();
+            std::cout << "-";
+        }
+
+
+        std::cout << _sign << ", ";
+
+        // Выводим младшие разряды
+        for (size_t i = 0; i < _size - 1; i++) {
+            std::cout << _digits[i] << ", ";
+        }
+
+        std::cout << _digits[_size - 1] << std::endl;
     }
 
 
@@ -88,47 +115,41 @@ public:
 
 
     longInt &operator+=(longInt const &other) {
-        if (this == &other) {
-            *this += longInt(*this);
+        if (isZero() && other.isZero()) {
             return *this;
         }
 
-        if (isNegative() != other.isNegative()) {
-            if (isNegative()) {
-                longInt tmp = *this;
-                tmp.changeSign();
-                *this = other;
-                *this -= tmp;
-            } else {
-                longInt tmp = other;
-                tmp.changeSign();
-                *this -= tmp;
-            }
+        if (isZero()) {
+            return *this = other;
+        }
+
+        if (other.isZero()) {
             return *this;
         }
+
+        size_t newSize1, newSize2;
+        unsigned int *digits1 = splitDigits(newSize1);
+        unsigned int *digits2 = other.splitDigits(newSize2);
+
+        size_t maxSize = std::max(newSize1, newSize2);
+        unsigned int *result = new unsigned int[maxSize + 1];
+        std::fill(result, result + maxSize + 1, 0);
 
         unsigned int carry = 0;
-        size_t new_size = std::max(_size, other._size) + 1;
-        unsigned int *new_digits = new unsigned int[new_size];
-        memset(new_digits, 0, sizeof(unsigned int) * new_size);
-
-        for (size_t i = 0; i < new_size - 1; i++) {
-            unsigned int sum = (i < _size ? _digits[i] : 0) + (i < other._size ? other._digits[i] : 0) + carry;
-            new_digits[i] = sum % (1u << (sizeof(unsigned int) * 8));
-            carry = sum / (1u << (sizeof(unsigned int) * 8));
+        for (size_t i = 0; i < maxSize; i++) {
+            unsigned int sum = (i < newSize1 ? digits1[i] : 0) + (i < newSize2 ? digits2[i] : 0) + carry;
+            result[i] = sum & 0xFFFF;
+            carry = sum >> 16;
         }
 
-        new_digits[new_size - 1] = _sign + other._sign + carry;
+        _sign = _sign + other._sign + carry; // Учтем возможные переносы
 
         delete[] _digits;
-        _sign = new_digits[new_size - 1];
-        _size = new_size - 1;
-        _digits = new unsigned int[_size];
-        for (size_t i = 0; i < _size; i++) {
-            _digits[i] = new_digits[i];
-        }
+        _digits = result;
+        _size = maxSize + 1;
 
-        delete[] new_digits;
+        delete[] digits1;
+        delete[] digits2;
 
         return *this;
     }
@@ -214,8 +235,8 @@ public:
 
 
 int main(){
-    int dig[] = {11, 22};
-    int dig2[] = {23, 32};
+    int dig[] = {111123, 122111};
+    int dig2[] = {123111, 113233};
     longInt a(dig,2), b(dig2, 2);
     a.print();
     a += b;
