@@ -114,7 +114,7 @@ public:
     }
 
 
-    longInt &operator+=(longInt const &other) {
+    longInt &operator+=(longInt &other) {
         if (isZero() && other.isZero()) {
             return *this;
         }
@@ -136,17 +136,70 @@ public:
         std::fill(result, result + maxSize + 1, 0);
 
         unsigned int carry = 0;
-        for (size_t i = 0; i < maxSize; i++) {
-            unsigned int sum = (i < newSize1 ? digits1[i] : 0) + (i < newSize2 ? digits2[i] : 0) + carry;
-            result[i] = sum & 0xFFFF;
-            carry = sum >> 16;
+        unsigned int sum = 0;
+        int executed1 = 0;
+        int executed2 = 0;
+        for (size_t i = 0; i <= maxSize; i++) {
+
+            if (i < newSize1 && i < newSize2) {
+                sum = digits1[i] + digits2[i] + carry;
+                result[i] = sum & 0xFFFF;
+                carry = sum >> 16;
+                continue;
+            }
+
+            if(i == newSize1 && i == newSize2){
+                sum = _sign + other._sign + carry;
+                _sign = sum;
+            }
+
+            if (i < newSize1 && executed1 == 0) {
+                sum = digits1[i] + other._sign + carry;
+                executed1 = 1;
+                result[i] = sum & 0xFFFF;
+                carry = sum >> 16;
+                continue;
+            }
+
+            if (executed1 == 1){
+                sum = digits1[i] + carry;
+                carry = 0;
+                if(i == newSize1){
+                    _sign = sum;
+                }
+                else {
+                    result[i] = sum & 0xFFFF;
+                }
+            }
+
+
+            if(i < newSize2 && executed2 == 0) {
+                sum = digits2[i] + _sign + carry;
+                executed2 = 1;
+                result[i] = sum & 0xFFFF;
+                carry = sum >> 16;
+                continue;
+            }
+
+            if (executed2 == 1){
+                sum = digits2[i] + carry;
+                carry = 0;
+                if(i == newSize2){
+                    other._sign = sum;
+                }
+                else {
+                    result[i] = sum & 0xFFFF;
+                }
+            }
+
+
+
         }
 
-        _sign = _sign + other._sign + carry; // Учтем возможные переносы
 
         delete[] _digits;
         _digits = result;
-        _size = maxSize + 1;
+        _size = maxSize;
 
         delete[] digits1;
         delete[] digits2;
@@ -235,8 +288,8 @@ public:
 
 
 int main(){
-    int dig[] = {111123, 122111};
-    int dig2[] = {123111, 113233};
+    int dig[] = {2232, 1111};
+    int dig2[] = {33312, 44213};
     longInt a(dig,2), b(dig2, 2);
     a.print();
     a += b;
