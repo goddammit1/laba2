@@ -7,6 +7,8 @@
 
 
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
 class longInt {
 private:
     int _sign;
@@ -42,7 +44,6 @@ public:
         delete[] _digits;
     }
 
-
     unsigned int *splitDigits(size_t &newSize) const {
         newSize = _size * 2;
         unsigned int *result = new unsigned int[newSize];
@@ -55,6 +56,8 @@ public:
 
         return result;
     }
+
+
 
     void print() {
         if (_digits == nullptr) {
@@ -71,11 +74,11 @@ public:
         std::cout << _sign << ", ";
 
         // Выводим младшие разряды
-        for (size_t i = 0; i < _size - 1; i++) {
+        for (size_t i = _size - 1; i > 0; i--) {
             std::cout << _digits[i] << ", ";
         }
 
-        std::cout << _digits[_size - 1] << std::endl;
+        std::cout << _digits[0] << std::endl;
     }
 
 
@@ -150,7 +153,7 @@ public:
 
             if(i == newSize1 && i == newSize2){
                 sum = _sign + other._sign + carry;
-                _sign = sum;
+                result[i] = sum & 0xFFFF;
             }
 
             if (i < newSize1 && executed1 == 0) {
@@ -159,17 +162,18 @@ public:
                 result[i] = sum & 0xFFFF;
                 carry = sum >> 16;
                 continue;
+
             }
 
             if (executed1 == 1){
+                if(i == newSize1){
+                    sum = _sign + carry;
+                    result[i] = sum & 0xFFFF;
+                    break;
+                }
                 sum = digits1[i] + carry;
                 carry = 0;
-                if(i == newSize1){
-                    _sign = sum;
-                }
-                else {
-                    result[i] = sum & 0xFFFF;
-                }
+                result[i] = sum & 0xFFFF;
             }
 
 
@@ -179,17 +183,18 @@ public:
                 result[i] = sum & 0xFFFF;
                 carry = sum >> 16;
                 continue;
+
             }
 
             if (executed2 == 1){
+                if(i == newSize2){
+                    sum = other._sign + carry;
+                    result[i] = sum & 0xFFFF;
+                    break;
+                }
                 sum = digits2[i] + carry;
                 carry = 0;
-                if(i == newSize2){
-                    other._sign = sum;
-                }
-                else {
-                    result[i] = sum & 0xFFFF;
-                }
+                result[i] = sum & 0xFFFF;
             }
 
 
@@ -198,8 +203,10 @@ public:
 
 
         delete[] _digits;
-        _digits = result;
-        _size = maxSize;
+        _digits = new unsigned int[maxSize-1];
+        memcpy(_digits, result, sizeof(int)*(maxSize-1));
+        _size = maxSize - 1;
+        _sign = static_cast<int>(result[maxSize]);
 
         delete[] digits1;
         delete[] digits2;
@@ -212,7 +219,10 @@ public:
 
 
 
-        longInt operator-() const{
+
+
+
+    longInt operator-() const{
         return longInt(*this).changeSign();
     }
 
@@ -288,13 +298,14 @@ public:
 
 
 int main(){
-    int dig[] = {2232, 1111};
-    int dig2[] = {33312, 44213};
-    longInt a(dig,2), b(dig2, 2);
+    int dig[] = {1223, 1231, 1234};
+    int dig2[] = {1222, 3343};
+    longInt a(dig,3), b(dig2, 2);
     a.print();
     a += b;
     a.print();
 
 }
+
 
 
