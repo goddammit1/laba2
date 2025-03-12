@@ -1,0 +1,19 @@
+# ninja log v5
+2	508	7633312262907478	CMakeFiles/untitled2.dir/main.cpp.obj	acb5e607a876c7f0
+1	565	7633322467715536	CMakeFiles/untitled2.dir/second.cpp.obj	23a2c07103ef7172
+0	531	7633313522607841	CMakeFiles/untitled2.dir/first.cpp.obj	f5ed6bdf98178917
+432	508	7635009840973987	untitled2.exe	cc5931eeedc0e4d9
+1	66	7635012832025784	build.ninja	14f21d1b29838754
+2	518	7633329951822078	CMakeFiles/untitled2.dir/third.cpp.obj	30eb8a9c986c6ece
+2	447	7634122277004149	CMakeFiles/untitled2.dir/fifth.cpp.obj	ccb48c712025d311
+0	437	7633332287105967	CMakeFiles/untitled2.dir/fourth.cpp.obj	52eacc72c0b9ce0c
+1	533	7634127366857572	CMakeFiles/untitled2.dir/seventh.cpp.obj	804633ffc7d3d275
+2	468	7635005519912020	CMakeFiles/untitled2.dir/eighth.cpp.obj	ef286413739588d0
+2	432	7635009840213803	CMakeFiles/untitled2.dir/tenth.cpp.obj	fe05241e4f6293ce
+0	61	7635012832025784	build.ninja	14f21d1b29838754
+0	487	7635012836996961	CMakeFiles/untitled2.dir/eleventh.cpp.obj	87429fdf1578886a
+488	572	7635012837837162	untitled2.exe	92a49aae4ed99c75
+2	476	7635014041224233	CMakeFiles/untitled2.dir/eleventh.cpp.obj	87429fdf1578886a
+477	567	7635014042097313	untitled2.exe	92a49aae4ed99c75
+2	478	7635015357635452	CMakeFiles/untitled2.dir/eleventh.cpp.obj	87429fdf1578886a
+479	573	7635015358555668	untitled2.exe	92a49aae4ed99c75

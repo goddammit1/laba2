@@ -6,9 +6,6 @@
 
 
 
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnreachableCode"
 class longInt {
 private:
     int _sign;
@@ -28,8 +25,8 @@ public:
             _size = size - 1;
         }
 
-    }
 
+    }
 
     longInt(longInt const &other) : _size(other._size), _sign(other._sign), _digits(nullptr) {
         if (other._digits != nullptr) {
@@ -38,60 +35,40 @@ public:
         }
 
     }
-
-
     ~longInt() {
         delete[] _digits;
     }
 
-    unsigned int *splitDigits(size_t &newSize) const {
-        newSize = _size * 2;
-        unsigned int *result = new unsigned int[newSize];
-        size_t j = 0;
 
-        for (size_t i = 0; i < _size; i++) {
-            result[j++] = _digits[i] & 0xFFFF; // младшая половинка
-            result[j++] = (_digits[i] >> 16) & 0xFFFF; // старшая половинка
+    unsigned int getDigit(int position) const noexcept
+    {
+        if (_digits == nullptr)
+        {
+            return position == 0
+                   ? _sign
+                   : 0;
         }
 
-        return result;
+        size_t const digits_count = _size;
+        if (position < digits_count){
+            return _digits[position];
+        }
+
+        if (position == digits_count){
+            return _sign;
+        }
+
+        return 0;
     }
-
-
-
-    void print() {
-        if (_digits == nullptr) {
-            std::cout << "0" << std::endl;
-            return;
-        }
-
-        if (isNegative()) {
-            changeSign();
-            std::cout << "-";
-        }
-
-
-        std::cout << _sign << ", ";
-
-        // Выводим младшие разряды
-        for (size_t i = _size - 1; i > 0; i--) {
-            std::cout << _digits[i] << ", ";
-        }
-
-        std::cout << _digits[0] << std::endl;
-    }
-
 
     bool isNegative() const {
         return (*reinterpret_cast<unsigned int const *>(&_sign) >> ((sizeof(int) << 3) - 1)) == 1;
     }
 
-
     longInt &changeSign() {
         _sign ^= (1 << ((sizeof(int) << 3) - 1));
         return *this;
     }
-
 
     int getAbsSign() const {
         return isNegative() ? _sign ^ (1 << ((sizeof(int) << 3) - 1)) : _sign;
@@ -117,102 +94,78 @@ public:
     }
 
 
-    longInt &operator+=(longInt &other) {
-        if (isZero() && other.isZero()) {
-            return *this;
+    longInt &operator+=(longInt const &other) {
+        if(this == &other){
+            if (other.isZero())
+            {
+                return *this;
+            }
+
+            if (isZero())
+            {
+                return *this = other;
+            }
+
+            if (isNegative())
+            {
+                changeSign();
+                *this += -other;
+                return changeSign();
+            }
+
+            if (other.isNegative())
+            {
+                return *this -= -other;
+            }
+        auto const first_value_digits_count = _size + 1;
+        auto const second_value_digits_count = other._size + 1;
+        auto const digits_count = std::max(first_value_digits_count, second_value_digits_count);
+
+        unsigned int operation_result = 0;
+
+        constexpr int shift = sizeof(unsigned int) << 2;
+        constexpr int mask = (1 << shift) - 1;
+
+        unsigned int *result_digits = new unsigned int[digits_count+1];
+        for (int i = 0; i < digits_count; ++i)
+        {
+            unsigned int first_value_digit = getDigit(i);
+            unsigned int second_value_digit = other.getDigit(i);
+            result_digits[i] = 0;
+
+            for (int j = 0; j < 2; ++j)
+            {
+                operation_result += (first_value_digit & mask) + (second_value_digit & mask);
+                first_value_digit >>= shift;
+                second_value_digit >>= shift;
+                *reinterpret_cast<unsigned int *>(&result_digits[i]) |= ((operation_result & mask) << shift * j);
+                operation_result >>= shift;
+            }
         }
 
-        if (isZero()) {
-            return *this = other;
+        auto result_digits_count = result_digits.size();
+
+        if (operation_result == 1)
+        {
+            if ((*reinterpret_cast<unsigned int *>(&result_digits[digits_count - 1]) >> ((sizeof(unsigned int) << 3) - 1)) == 0)
+            {
+                *reinterpret_cast<unsigned int *>(&result_digits[digits_count - 1]) |= (1u << ((sizeof(unsigned int) << 3) - 1));
+            }
+            else
+            {
+                result_digits.back() = 1;
+            }
+        }
+        else if ((*reinterpret_cast<unsigned int *>(&result_digits[digits_count - 1]) >> ((sizeof(unsigned int) << 3) - 1)) == 0)
+        {
+            --result_digits_count;
         }
 
-        if (other.isZero()) {
-            return *this;
-        }
-
-        size_t newSize1, newSize2;
-        unsigned int *digits1 = splitDigits(newSize1);
-        unsigned int *digits2 = other.splitDigits(newSize2);
-
-        size_t maxSize = std::max(newSize1, newSize2);
-        unsigned int *result = new unsigned int[maxSize + 1];
-        std::fill(result, result + maxSize + 1, 0);
-
-        unsigned int carry = 0;
-        unsigned int sum = 0;
-        int executed1 = 0;
-        int executed2 = 0;
-        for (size_t i = 0; i <= maxSize; i++) {
-
-            if (i < newSize1 && i < newSize2) {
-                sum = digits1[i] + digits2[i] + carry;
-                result[i] = sum & 0xFFFF;
-                carry = sum >> 16;
-                continue;
-            }
-
-            if(i == newSize1 && i == newSize2){
-                sum = _sign + other._sign + carry;
-                result[i] = sum & 0xFFFF;
-            }
-
-            if (i < newSize1 && executed1 == 0) {
-                sum = digits1[i] + other._sign + carry;
-                executed1 = 1;
-                result[i] = sum & 0xFFFF;
-                carry = sum >> 16;
-                continue;
-
-            }
-
-            if (executed1 == 1){
-                if(i == newSize1){
-                    sum = _sign + carry;
-                    result[i] = sum & 0xFFFF;
-                    break;
-                }
-                sum = digits1[i] + carry;
-                carry = 0;
-                result[i] = sum & 0xFFFF;
-            }
-
-
-            if(i < newSize2 && executed2 == 0) {
-                sum = digits2[i] + _sign + carry;
-                executed2 = 1;
-                result[i] = sum & 0xFFFF;
-                carry = sum >> 16;
-                continue;
-
-            }
-
-            if (executed2 == 1){
-                if(i == newSize2){
-                    sum = other._sign + carry;
-                    result[i] = sum & 0xFFFF;
-                    break;
-                }
-                sum = digits2[i] + carry;
-                carry = 0;
-                result[i] = sum & 0xFFFF;
-            }
-
-
-
-        }
-
-
-        delete[] _digits;
-        _digits = new unsigned int[maxSize-1];
-        memcpy(_digits, result, sizeof(int)*(maxSize-1));
-        _size = maxSize - 1;
-        _sign = static_cast<int>(result[maxSize]);
-
-        delete[] digits1;
-        delete[] digits2;
-
-        return *this;
+        return *this = longInt(normalDigit(result_digits));
     }
+
+
+}
 
 
 
@@ -298,12 +251,16 @@ public:
 
 
 int main(){
-    int dig[] = {1223, 1231, 1234};
-    int dig2[] = {1222, 3343};
-    longInt a(dig,3), b(dig2, 2);
+    int dig[] = {100000000};
+    int dig2[] = {9};
+    longInt a(dig,1), b(dig2, 1);
+    for(int i = 0; i < 10; i++){
+        a += a;
+        a.print();
+    }
     a.print();
-    a += b;
-    a.print();
+
+
 
 }
 
