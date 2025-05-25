@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "untitled2::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-untitled2-Debug-2cfd9a9f70f23f9d9d7b.json",
+					"jsonFile" : "target-untitled2-Debug-e7123ad6f92b349aee18.json",
 					"name" : "untitled2",
 					"projectIndex" : 0
 				}
@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/goddammit/Documents/GitHub/laba2/untitled2/cmake-build-debug",
-		"source" : "C:/Users/goddammit/Documents/GitHub/laba2/untitled2"
+		"build" : "C:/Users/goddammit/Documents/GitHub/laba2/graphs/cmake-build-debug",
+		"source" : "C:/Users/goddammit/Documents/GitHub/laba2/graphs"
 	},
 	"version" : 
 	{

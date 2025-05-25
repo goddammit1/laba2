@@ -109,7 +109,7 @@ void print_vector(const std::vector<int>& vec, const std::string& title) {
 
 int main() {
     try {
-        Graph graph("matrix_t1_023.txt", Graph::MATRIX);
+        Graph graph("C:/Users/goddammit/Documents/GitHub/laba2/graphs/matrix_t4_014.txt", Graph::MATRIX);
         GraphAnalyzer analyzer(graph);
 
         // a) Степени вершин

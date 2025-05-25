@@ -12,10 +12,12 @@
 #include <tuple>
 #include <stdexcept>
 
+struct NoneType {};
+constexpr NoneType None = NoneType();
 
 class Graph {
 private:
-    int size_;
+    int size_{};
     bool is_directed_;
     std::vector<std::vector<int>> adjacency_matrix_;
 
@@ -83,7 +85,7 @@ private:
         file.close();
     }
 
-    bool CheckDirected() const {
+    [[nodiscard]] bool CheckDirected() const {
         for (int u = 1; u <= size_; ++u) {
             for (int v = 1; v <= size_; ++v) {
                 if (adjacency_matrix_[u][v] != adjacency_matrix_[v][u]) {
@@ -118,11 +120,11 @@ public:
         is_directed_ = CheckDirected();
     }
 
-    int size() const {
+    [[nodiscard]] int size() const {
         return size_;
     }
 
-    int weight(int u, int v) const {
+    [[nodiscard]] int weight(int u, int v) const {
         if (u < 1 || u > size_ || v < 1 || v > size_) {
             throw std::out_of_range("Vertex index out of range");
         }
@@ -133,7 +135,7 @@ public:
         return weight(u, v) != 0;
     }
 
-    std::vector<std::vector<int>> adjacency_matrix() const {
+    [[nodiscard]] std::vector<std::vector<int>> adjacency_matrix() const {
         std::vector<std::vector<int>> matrix(size_ + 1, std::vector<int>(size_ + 1, 0));
         for (int u = 1; u <= size_; ++u) {
             for (int v = 1; v <= size_; ++v) {
@@ -143,7 +145,7 @@ public:
         return matrix;
     }
 
-    std::vector<int> adjacency_list(int v) const {
+    [[nodiscard]] std::vector<int> adjacency_list(int v) const {
         if (v < 1 || v > size_) {
             throw std::out_of_range("Vertex index out of range");
         }
@@ -156,7 +158,7 @@ public:
         return list;
     }
 
-    std::vector<std::tuple<int, int, int>> list_of_edges() const {
+    [[nodiscard]] std::vector<std::tuple<int, int, int>> list_of_edges() const {
         std::vector<std::tuple<int, int, int>> edges;
         for (int u = 1; u <= size_; ++u) {
             for (int v = 1; v <= size_; ++v) {
@@ -170,7 +172,7 @@ public:
         return edges;
     }
 
-    std::vector<std::tuple<int, int, int>> list_of_edges(int v) const {
+    [[nodiscard]] std::vector<std::tuple<int, int, int>> list_of_edges(int v) const {
         if (v < 1 || v > size_) {
             throw std::out_of_range("Vertex index out of range");
         }
@@ -183,7 +185,7 @@ public:
         return edges;
     }
 
-    bool is_directed() const {
+    [[nodiscard]] bool is_directed() const {
         return is_directed_;
     }
 };
