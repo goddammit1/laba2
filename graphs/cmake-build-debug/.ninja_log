@@ -1,15 +1,11 @@
 # ninja log v5
 2	460	7699079661257541	CMakeFiles/untitled2.dir/twelvth.cpp.obj	72821aac7d74178f
 0	565	7699072553696269	CMakeFiles/untitled2.dir/second.cpp.obj	7c665249fec5acdf
-521	621	7699097156389802	untitled2.exe	31a4f82fcb1cd91f
+434	514	7699100771775310	untitled2.exe	8f80b4c239ebfe6b
 2	591	7699065675388507	CMakeFiles/untitled2.dir/sixth.cpp.obj	4e17a73394d2b526
-1	61	7699100383399725	build.ninja	78618d30d8938abd
+0	66	7712700924569081	build.ninja	78618d30d8938abd
 2	485	7635020819247688	CMakeFiles/untitled2.dir/eleventh.cpp.obj	d7380c8f6e7391b3
 2	440	7699082944379455	CMakeFiles/untitled2.dir/thirteents.cpp.obj	794261c2a25d6533
 2	635	7699095471343447	CMakeFiles/untitled2.dir/forteentth.cpp.obj	ac805cfedbe31fdd
 0	521	7699097155392164	CMakeFiles/untitled2.dir/first.cpp.obj	48f0929f90a441be
-0	66	7699100383399725	build.ninja	78618d30d8938abd
-0	458	7699100388171397	CMakeFiles/untitled2.dir/fourth.cpp.obj	5de543dd1556efe
-458	536	7699100388937168	untitled2.exe	8f80b4c239ebfe6b
 1	434	7699100770985113	CMakeFiles/untitled2.dir/fourth.cpp.obj	5de543dd1556efe
-434	514	7699100771775310	untitled2.exe	8f80b4c239ebfe6b
