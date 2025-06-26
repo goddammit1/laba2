@@ -2,6 +2,7 @@
 #include <vector>
 #include <climits>
 #include <algorithm>
+#include <unordered_set>
 #include "Graph.h"
 
 class FloydWarshallAnalyzer {
@@ -29,9 +30,9 @@ private:
         int n = graph_.size();
         for (int k = 1; k <= n; ++k) {
             for (int i = 1; i <= n; ++i) {
+                if (dist_[i][k] == INT_MAX) continue;
                 for (int j = 1; j <= n; ++j) {
-                    if (dist_[i][k] != INT_MAX && dist_[k][j] != INT_MAX &&
-                        dist_[i][j] > dist_[i][k] + dist_[k][j]) {
+                    if (dist_[k][j] != INT_MAX && dist_[i][j] > dist_[i][k] + dist_[k][j]) {
                         dist_[i][j] = dist_[i][k] + dist_[k][j];
                         next_[i][j] = next_[i][k];
                     }
@@ -46,9 +47,9 @@ public:
         computeShortestPaths();
     }
 
-    // a) Восстановление пути между u и v
+    // Восстановление пути между u и v
     std::vector<int> reconstructPath(int u, int v) {
-        if (dist_[u][v] == INT_MAX) return {};
+        if (next_[u][v] == -1) return {};
 
         std::vector<int> path;
         path.push_back(u);
@@ -59,69 +60,119 @@ public:
         return path;
     }
 
-    // b) Характеристики компонент связности
+    // Анализ компонент связности
     void analyzeComponents() {
         int n = graph_.size();
         std::vector<bool> visited(n + 1, false);
+        std::vector<std::vector<int>> components;
 
+        // Поиск компонент связности
         for (int u = 1; u <= n; ++u) {
             if (!visited[u]) {
                 std::vector<int> component;
-                // Поиск компоненты через достижимость
+                std::unordered_set<int> compSet;
+
+                // Собираем все вершины в компоненте
                 for (int v = 1; v <= n; ++v) {
-                    if (dist_[u][v] != INT_MAX && !visited[v]) {
-                        component.push_back(v);
+                    if (!visited[v] && (dist_[u][v] != INT_MAX || dist_[v][u] != INT_MAX)) {
                         visited[v] = true;
+                        component.push_back(v);
+                        compSet.insert(v);
                     }
                 }
-
-                // Вычисление характеристик
-                int diameter = 0, radius = INT_MAX;
-                std::vector<int> central;
-
-                for (int v : component) {
-                    int maxDist = 0;
-                    for (int w : component) {
-                        maxDist = std::max(maxDist, dist_[v][w]);
-                    }
-                    diameter = std::max(diameter, maxDist);
-                    if (maxDist < radius) {
-                        radius = maxDist;
-                        central = {v};
-                    } else if (maxDist == radius) {
-                        central.push_back(v);
-                    }
-                }
-
-                // Вывод результатов
-                std::cout << "Компонента: ";
-                for (int v : component) std::cout << v << " ";
-                std::cout << "\nДиаметр: " << diameter << "\nРадиус: " << radius
-                          << "\nЦентральные вершины: ";
-                for (int v : central) std::cout << v << " ";
-                std::cout << "\n\n";
+                components.push_back(component);
             }
+        }
+
+        // Вывод информации о связности
+        std::cout << "Graph is " << (components.size() == 1 ? "" : "NOT ")
+                  << "connected and contains " << components.size() << " connected components.\n\n";
+
+        // Анализ каждой компоненты
+        for (const auto& comp : components) {
+            // Вывод вершин
+            std::cout << "Vertices numbers:\n\t";
+            for (int v : comp) std::cout << v << "\t";
+            std::cout << "\n";
+
+            // Вывод степеней вершин
+            std::cout << "Vertices degrees:\n\t";
+            for (int v : comp) std::cout << graph_.adjacency_list(v).size() << "\t";
+            std::cout << "\n";
+
+            // Вычисление эксцентриситетов
+            std::cout << "Eccentricity:\n\t";
+            std::vector<int> ecc(comp.size());
+            for (int i = 0; i < comp.size(); ++i) {
+                int maxDist = 0;
+                for (int j = 0; j < comp.size(); ++j) {
+                    if (dist_[comp[i]][comp[j]] != INT_MAX) {
+                        maxDist = std::max(maxDist, dist_[comp[i]][comp[j]]);
+                    }
+                }
+                ecc[i] = maxDist;
+                std::cout << ecc[i] << "\t";
+            }
+            std::cout << "\n";
+
+            // Вычисление радиуса и центра
+            int radius = *std::min_element(ecc.begin(), ecc.end());
+            int diameter = *std::max_element(ecc.begin(), ecc.end());
+
+            std::vector<int> central;
+            for (int i = 0; i < comp.size(); ++i) {
+                if (ecc[i] == radius) central.push_back(comp[i]);
+            }
+
+            std::vector<int> peripherial;
+            for (int i = 0; i < comp.size(); ++i) {
+                if (ecc[i] == diameter) peripherial.push_back(comp[i]);
+            }
+
+            // Вывод характеристик
+            std::cout << "R = " << radius << ".0\n";
+            std::cout << "Central vertices:\n[";
+            for (int i = 0; i < central.size(); ++i) {
+                std::cout << central[i];
+                if (i < central.size() - 1) std::cout << ", ";
+            }
+            std::cout << "]\n";
+
+            std::cout << "D = " << diameter << ".0\n";
+            std::cout << "Peripherial vertices:\n[";
+            for (int i = 0; i < peripherial.size(); ++i) {
+                std::cout << peripherial[i];
+                if (i < peripherial.size() - 1) std::cout << ", ";
+            }
+            std::cout << "]\n\n";
         }
     }
 };
 
 int main() {
     try {
-        Graph graph("list_of_edges_t7_017.txt", Graph::EDGES_LIST);
+        // Убедитесь, что путь к файлу корректный
+        Graph graph("C:/Users/goddammit/Documents/GitHub/laba2/graphs/list_of_edges_t10_008.txt", Graph::EDGES_LIST);
         FloydWarshallAnalyzer analyzer(graph);
 
-        // Пример: путь от 2 до 50
+        // Пример вывода пути
         int u = 2, v = 50;
         auto path = analyzer.reconstructPath(u, v);
-        std::cout << "Путь от " << u << " до " << v << ": ";
-        for (int node : path) std::cout << node << " ";
-        std::cout << "\n\n";
+        if (!path.empty()) {
+            std::cout << "Path from " << u << " to " << v << ": ";
+            for (int node : path) std::cout << node << " ";
+            std::cout << "\n\n";
+        } else {
+            std::cout << "No path between " << u << " and " << v << "\n\n";
+        }
 
         // Анализ компонент
         analyzer.analyzeComponents();
 
     } catch (const std::exception& e) {
-        std::cerr << "Ошибка: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << std::endl;
     }
     return 0;
 }
+
+

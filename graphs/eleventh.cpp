@@ -51,9 +51,7 @@ private:
             }
         }
 
-        // Проверка на отрицательные циклы
         has_negative_cycle_ = false;
-        queue = std::queue<int>(); // Очистка очереди
         for (int u = 1; u <= n; ++u) {
             for (int v : graph_.adjacency_list(u)) {
                 if (distance_[u] != INT_MAX && distance_[v] > distance_[u] + graph_.weight(u, v)) {
@@ -76,60 +74,33 @@ public:
 
     bool hasNegativeCycle() const { return has_negative_cycle_; }
 
-    std::vector<int> getPath(int target) const {
-        if (has_negative_cycle_) {
-            throw std::runtime_error("Graph contains a negative cycle");
-        }
-        if (target < 1 || target > graph_.size()) {
-            throw std::invalid_argument("Invalid target vertex");
-        }
-        if (distance_[target] == INT_MAX) {
-            return {};
-        }
-
-        std::vector<int> path;
-        for (int v = target; v != -1; v = predecessor_[v]) {
-            path.push_back(v);
-        }
-        reverse(path.begin(), path.end());
-        return path;
-    }
-
     void printDistances() const {
-        std::cout << "Distances from vertex " << start_ << ":\n";
-        for (int v = 1; v <= graph_.size(); ++v) {
-            std::cout << "To " << v << ": ";
+        std::cout << "Shotest paths lengths from " << start_ << ":\n{";
+        int n = graph_.size();
+        for (int v = 1; v <= n; ++v) {
+            if (v > 1) std::cout << ", ";
+            std::cout << v << ": ";
             if (distance_[v] == INT_MAX) {
-                std::cout << "INF";
+                std::cout << "+Infinity";
             } else {
                 std::cout << distance_[v];
             }
-            std::cout << "\n";
         }
+        std::cout << "}" << std::endl;
     }
 };
 
 int main() {
     try {
-        Graph graph("list_of_edges_t7_017.txt", Graph::EDGES_LIST);
-        int start_vertex = 2;
+
+        Graph graph("C:/Users/goddammit/Documents/GitHub/laba2/graphs/list_of_edges_t11_008.txt", Graph::EDGES_LIST);
+        int start_vertex = 13;
         BellmanFordMoore bfm(graph, start_vertex);
 
         if (bfm.hasNegativeCycle()) {
             std::cout << "Graph contains a negative cycle!\n";
         } else {
             bfm.printDistances();
-
-            // Пример получения пути до вершины 50
-            int target = 50;
-            auto path = bfm.getPath(target);
-            if (path.empty()) {
-                std::cout << "No path from " << start_vertex << " to " << target << "\n";
-            } else {
-                std::cout << "Path from " << start_vertex << " to " << target << ": ";
-                for (int v : path) std::cout << v << " ";
-                std::cout << "\n";
-            }
         }
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

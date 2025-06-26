@@ -50,31 +50,53 @@ bool dfsKuhn(int u, const Graph& graph, std::vector<int>& match, std::vector<boo
     return false;
 }
 
-int findMaxMatching(const Graph& graph) {
+std::pair<int, std::vector<std::pair<int, int>>> findMaxMatching(const Graph& graph) {
     if (graph.is_directed()) {
         throw std::runtime_error("Graph must be undirected for bipartite matching.");
     }
 
     auto [U, V] = checkBipartition(graph);
 
-    std::vector<int> match(graph.size() + 1, -1); // Tracks matches for vertices in V
+    int n = graph.size();
+    std::vector<int> match(n + 1, -1); // Tracks matches for vertices in V
     int maxMatching = 0;
 
     for (int u : U) {
-        std::vector<bool> visited(graph.size() + 1, false);
+        std::vector<bool> visited(n + 1, false);
         if (dfsKuhn(u, graph, match, visited)) {
             maxMatching++;
         }
     }
 
-    return maxMatching;
+    // Build mateU: for u in U, the vertex v in V matched to u, or -1 if unmatched.
+    std::vector<int> mateU(n+1, -1);
+    for (int v = 1; v <= n; ++v) {
+        if (match[v] != -1) {
+            mateU[match[v]] = v;
+        }
+    }
+
+    // Collect matching pairs: for each u in U that is matched, add (u, mateU[u])
+    std::vector<std::pair<int, int>> matchingPairs;
+    for (int u : U) {
+        if (mateU[u] != -1) {
+            matchingPairs.push_back({u, mateU[u]});
+        }
+    }
+
+    return {maxMatching, matchingPairs};
 }
 
 int main() {
     try {
-        Graph graph("C:/Users/goddammit/Documents/GitHub/laba2/graphs/list_of_adjacency_t13_005.txt", Graph::ADJACENCY_LIST);
-        int matchingSize = findMaxMatching(graph);
-        std::cout << "Maximum matching size: " << matchingSize << std::endl;
+        Graph graph("C:/Users/goddammit/Documents/GitHub/laba2/graphs/list_of_adjacency_t13_012.txt", Graph::ADJACENCY_LIST);
+        auto [matchingSize, matchingPairs] = findMaxMatching(graph);
+        std::cout << "Size of maximum matching: " << matchingSize << "." << std::endl;
+        std::cout << "Maximum matching:\n{";
+        for (const auto& edge : matchingPairs) {
+            std::cout << "(" << edge.first << ", " << edge.second << "), ";
+        }
+        std::cout << "}" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;

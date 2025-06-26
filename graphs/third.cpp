@@ -79,7 +79,7 @@ public:
 
 int main() {
     try {
-        Graph graph("matrix_t2_016.txt", Graph::MATRIX);
+        Graph graph("C:/Users/goddammit/Documents/GitHub/laba2/graphs/list_of_edges_t3_001.txt", Graph::EDGES_LIST);
 
         // Построение BFS-остова
         std::cout << "=== BFS Spanning Tree ===\n";

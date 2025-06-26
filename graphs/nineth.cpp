@@ -83,7 +83,7 @@ public:
 
 int main() {
     try {
-        Graph graph("matrix_t7_017.txt", Graph::MATRIX);
+        Graph graph("C:/Users/goddammit/Documents/GitHub/laba2/graphs/matrix_t9_004.txt", Graph::MATRIX);
         MSTFinder mst(graph);
         mst.print_mst();
     } catch (const std::exception& e) {

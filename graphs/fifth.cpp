@@ -59,7 +59,7 @@ public:
 
 int main() {
     try {
-        Graph graph("list_of_edges_t1_023.txt", Graph::EDGES_LIST);
+        Graph graph("C:/Users/goddammit/Documents/GitHub/laba2/graphs/list_of_edges_t5_011.txt", Graph::EDGES_LIST);
         BipartiteChecker checker(graph);
 
         if (checker.is_bipartite()) {

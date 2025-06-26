@@ -41,7 +41,6 @@ private:
         }
     }
 
-    // Для слабой связности в орграфе: создаём неориентированное представление
     std::vector<std::vector<int>> get_undirected_adjacency() const {
         std::vector<std::vector<int>> undir_adj(graph_.size() + 1);
         auto matrix = graph_.adjacency_matrix();
@@ -50,7 +49,7 @@ private:
             for (int v = 1; v <= graph_.size(); ++v) {
                 if (matrix[u][v] != 0) {
                     undir_adj[u].push_back(v);
-                    undir_adj[v].push_back(u); // Добавляем обратное ребро
+                    undir_adj[v].push_back(u);
                 }
             }
         }
@@ -62,7 +61,6 @@ public:
         visited_.resize(graph_.size() + 1, false);
     }
 
-    // Поиск компонент связности (BFS)
     std::vector<std::vector<int>> find_components_bfs() {
         visited_.assign(visited_.size(), false);
         components_.clear();
@@ -77,7 +75,6 @@ public:
         return components_;
     }
 
-    // Поиск компонент связности (DFS)
     std::vector<std::vector<int>> find_components_dfs() {
         visited_.assign(visited_.size(), false);
         components_.clear();
@@ -92,13 +89,11 @@ public:
         return components_;
     }
 
-    // Поиск слабых компонент связности для орграфа
     std::vector<std::vector<int>> find_weak_components() {
         if (!graph_.is_directed()) {
-            return find_components_bfs(); // Если граф не ориентирован
+            return find_components_bfs();
         }
 
-        // Создаём неориентированное представление
         auto undir_adj = get_undirected_adjacency();
         visited_.assign(visited_.size(), false);
         components_.clear();
@@ -130,35 +125,49 @@ public:
     }
 };
 
-void print_components(const std::vector<std::vector<int>>& components) {
-    for (size_t i = 0; i < components.size(); ++i) {
-        std::cout << "Component " << i + 1 << ": ";
-        for (int v : components[i]) {
-            std::cout << v << " ";
-        }
-        std::cout << "\n";
-    }
-}
-
 int main() {
     try {
         Graph graph("list_of_edges_t1_023.txt", Graph::EDGES_LIST);
         ConnectivityFinder finder(graph);
 
-        // Поиск компонент связности BFS
-        auto components_bfs = finder.find_components_bfs();
-        std::cout << "BFS Components (" << components_bfs.size() << "):\n";
-        print_components(components_bfs);
+        std::vector<std::vector<int>> components;
+        bool is_directed = graph.is_directed();
 
-        // Поиск компонент связности DFS
-        auto components_dfs = finder.find_components_dfs();
-        std::cout << "\nDFS Components (" << components_dfs.size() << "):\n";
-        print_components(components_dfs);
+        if (is_directed) {
+            components = finder.find_weak_components();
+            if (components.size() == 1) {
+                std::cout << "Digraph is weakly connected\n";
+            } else {
+                std::cout << "Digraph is not weakly connected\n";
+            }
+        } else {
+            components = finder.find_components_bfs();
+            if (components.size() == 1) {
+                std::cout << "Graph is connected\n";
+            } else {
+                std::cout << "Graph is not connected\n";
+            }
+        }
 
-        // Поиск слабых компонент для орграфа
-        auto weak_components = finder.find_weak_components();
-        std::cout << "\nWeak Components (" << weak_components.size() << "):\n";
-        print_components(weak_components);
+        // Sort each component and then sort components by their first element
+        for (auto& comp : components) {
+            std::sort(comp.begin(), comp.end());
+        }
+        std::sort(components.begin(), components.end(),
+                  [](const std::vector<int>& a, const std::vector<int>& b) {
+                      return a[0] < b[0];
+                  });
+
+        std::cout << "Connected components:\n";
+        for (const auto& comp : components) {
+            std::cout << "[";
+            for (size_t i = 0; i < comp.size(); ++i) {
+                std::cout << comp[i];
+                if (i < comp.size() - 1)
+                    std::cout << ", ";
+            }
+            std::cout << "]\n";
+        }
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

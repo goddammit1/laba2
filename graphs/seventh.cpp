@@ -95,7 +95,7 @@ public:
 
 int main() {
     try {
-        Graph graph("list_of_edges_t7_009.txt", Graph::EDGES_LIST);
+        Graph graph("C:/Users/goddammit/Documents/GitHub/laba2/graphs/list_of_edges_t7_017.txt", Graph::EDGES_LIST);
         StronglyConnectedComponents scc(graph);
         scc.print_components();
     } catch (const std::exception& e) {

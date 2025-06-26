@@ -49,8 +49,8 @@ cmake_ninja_workdir = C$:/Users/goddammit/Documents/GitHub/laba2/graphs/cmake-bu
 
 build cmake_object_order_depends_target_untitled2: phony || CMakeFiles/untitled2.dir
 
-build CMakeFiles/untitled2.dir/fourth.cpp.obj: CXX_COMPILER__untitled2_unscanned_Debug C$:/Users/goddammit/Documents/GitHub/laba2/graphs/fourth.cpp || cmake_object_order_depends_target_untitled2
-  DEP_FILE = CMakeFiles\untitled2.dir\fourth.cpp.obj.d
+build CMakeFiles/untitled2.dir/thirteents.cpp.obj: CXX_COMPILER__untitled2_unscanned_Debug C$:/Users/goddammit/Documents/GitHub/laba2/graphs/thirteents.cpp || cmake_object_order_depends_target_untitled2
+  DEP_FILE = CMakeFiles\untitled2.dir\thirteents.cpp.obj.d
   FLAGS = -g -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles\untitled2.dir
   OBJECT_FILE_DIR = CMakeFiles\untitled2.dir
@@ -63,7 +63,7 @@ build CMakeFiles/untitled2.dir/fourth.cpp.obj: CXX_COMPILER__untitled2_unscanned
 #############################################
 # Link the executable untitled2.exe
 
-build untitled2.exe: CXX_EXECUTABLE_LINKER__untitled2_Debug CMakeFiles/untitled2.dir/fourth.cpp.obj
+build untitled2.exe: CXX_EXECUTABLE_LINKER__untitled2_Debug CMakeFiles/untitled2.dir/thirteents.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\untitled2.dir
